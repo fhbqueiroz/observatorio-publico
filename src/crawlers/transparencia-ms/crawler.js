@@ -31,7 +31,8 @@ export async function execute() {
         console.log('');
 
         const result = parse(response.body);
-
+        result.sourceId = config.sourceId;
+        
         await save(result);
 
         console.log('Página salva com sucesso.');
