@@ -17,8 +17,25 @@ export async function connectRabbitMQ() {
 export function publish(message) {
     channel.sendToQueue(
         QUEUE,
-        Buffer.from(JSON.stringify(message))
+        Buffer.from(JSON.stringify(message)),
+        { persistent: true }
     );
 }
 
-export { QUEUE, channel };
+export function consume(callback) {
+    channel.consume(QUEUE, async (message) => {
+        if (!message) return;
+
+        try {
+            const content = JSON.parse(message.content.toString());
+
+            await callback(content);
+
+            channel.ack(message);
+        } catch (error) {
+            console.error(error);
+
+            channel.nack(message, false, true);
+        }
+    });
+}
