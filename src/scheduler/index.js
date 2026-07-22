@@ -1,12 +1,18 @@
 import cron from 'node-cron';
-import { execute } from '../crawlers/transparencia-ms/crawler.js';
+
+import { publish } from '../queue/rabbitmq.js';
 
 export function startScheduler() {
     cron.schedule('* * * * *', async () => {
-        console.log(`[${new Date().toISOString()}] Executando crawler...`);
+        console.log(`[${new Date().toISOString()}] Executando scheduler...`);
 
         try {
-            await execute();
+            publish({
+                crawler: 'transparencia-ms',
+                createdAt: new Date().toISOString()
+            });
+
+            console.log('Mensagem enviada.');
         } catch (error) {
             console.error(error);
         }
