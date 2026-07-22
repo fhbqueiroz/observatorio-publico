@@ -2,6 +2,7 @@ import got from 'got';
 
 import * as executionRepository from './execution.repository.js';
 import * as logger from './logger.js';
+import * as sourceRepository from '../database/source.repository.js';
 
 async function download(url, attempts = 3) {
     let lastError;
@@ -30,14 +31,20 @@ export async function executeCrawler({
     parser,
     repository
 }) {
-    const executionId = await executionRepository.start(config.sourceId);
+    const source = await sourceRepository.findByName(config.name);
+
+    if (!source) {
+        throw new Error(`Fonte "${config.name}" não encontrada.`);
+    }
+
+    const executionId = await executionRepository.start(source.id);
 
     try {
         const response = await download(config.url);
 
         const result = parser(response.body);
 
-        result.sourceId = config.sourceId;
+        result.sourceId = source.id;
 
         await repository.save(result);
 
