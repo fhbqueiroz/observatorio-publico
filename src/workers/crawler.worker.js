@@ -1,17 +1,17 @@
 import { consume } from '../queue/rabbitmq.js';
-import { execute } from '../crawlers/transparencia-ms/crawler.js';
+import { crawlers } from '../crawlers/index.js';
 
 export function startWorker() {
     consume(async (message) => {
         console.log('Mensagem recebida:', message);
 
-        switch (message.crawler) {
-            case 'transparencia-ms':
-                await execute();
-                break;
+        const crawler = crawlers[message.crawler];
 
-            default:
-                console.log('Crawler não encontrado.');
+        if (!crawler) {
+            console.log(`Crawler "${message.crawler}" não encontrado.`);
+            return;
         }
+
+        await crawler();
     });
 }
