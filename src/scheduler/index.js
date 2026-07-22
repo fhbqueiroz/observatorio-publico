@@ -1,10 +1,11 @@
 import cron from 'node-cron';
 
 import { publish } from '../queue/rabbitmq.js';
+import * as logger from '../shared/logger.js';
 
 export function startScheduler() {
     cron.schedule('* * * * *', async () => {
-        console.log(`[${new Date().toISOString()}] Executando scheduler...`);
+        logger.info(`[${new Date().toISOString()}] Executando scheduler...`);
 
         try {
             publish({
@@ -12,9 +13,9 @@ export function startScheduler() {
                 createdAt: new Date().toISOString()
             });
 
-            console.log('Mensagem enviada.');
+            logger.info('Mensagem enviada.');
         } catch (error) {
-            console.error(error);
+            logger.error(error);
         }
     });
 }

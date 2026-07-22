@@ -1,6 +1,7 @@
 import got from 'got';
 
 import * as executionRepository from './execution.repository.js';
+import * as logger from './logger.js';
 
 export async function executeCrawler({
     config,
@@ -20,7 +21,7 @@ export async function executeCrawler({
 
         await executionRepository.finish(executionId, true);
 
-        console.log(`${config.name} finalizado.`);
+        logger.info(`${config.name} finalizado.`);
     } catch (error) {
         await executionRepository.finish(
             executionId,
