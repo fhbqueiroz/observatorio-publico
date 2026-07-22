@@ -1,21 +1,33 @@
 import got from 'got';
 
+import * as executionRepository from './execution.repository.js';
+
 export async function executeCrawler({
     config,
     parser,
     repository
 }) {
-    const response = await got(config.url, {
-        timeout: {
-            request: 30000
-        }
-    });
+    const executionId = await executionRepository.start(config.sourceId);
 
-    const result = parser(response.body);
+    try {
+        const response = await got(config.url);
 
-    result.sourceId = config.sourceId;
+        const result = parser(response.body);
 
-    await repository.save(result);
+        result.sourceId = config.sourceId;
 
-    console.log(`${config.name} finalizado.`);
+        await repository.save(result);
+
+        await executionRepository.finish(executionId, true);
+
+        console.log(`${config.name} finalizado.`);
+    } catch (error) {
+        await executionRepository.finish(
+            executionId,
+            false,
+            error.message
+        );
+
+        throw error;
+    }
 }
