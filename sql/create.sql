@@ -14,3 +14,13 @@ CREATE TABLE crawler_execution (
     success BOOLEAN,
     message TEXT
 );
+
+CREATE TABLE page (
+    id BIGSERIAL PRIMARY KEY,
+    source_id INT NOT NULL REFERENCES source(id),
+    title VARCHAR(500),
+    language VARCHAR(20),
+    links INT,
+    images INT,
+    collected_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
