@@ -5,7 +5,7 @@ import { db } from '../../database/postgres.js';
 
 export async function save(page) {
     await db.query(
-        `INSERT INTO page
+        `INSERT INTO pages
         (source_id, title, language, links, images)
         VALUES ($1, $2, $3, $4, $5)`,
         [
@@ -32,7 +32,7 @@ export async function execute() {
 
         const result = parse(response.body);
         result.sourceId = config.sourceId;
-        
+
         await save(result);
 
         console.log('Página salva com sucesso.');
